@@ -3,6 +3,9 @@
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
 #include <cassert>
+#include"MathUtility.h"
+
+float PI = 3.1415926;
 
 GameScene::GameScene() {}
 
@@ -35,6 +38,227 @@ void GameScene::Initialize() {
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera->GetViewProjection());
 	float hen[12][2];
 	float hen2[12][2];
+
+	////x,y,z方向のスケーリングを設定
+	//worldTransform.scale_ = {1,5,1};
+
+	//Matrix4 matScale;
+
+	//matScale = {
+	//  1.0f,0.0f,0.0f,0.0f,
+	//  0.0f,1.0f,0.0f,0.0f,
+	//  0.0f,0.0f,1.0f,0.0f,
+	//  0.0f,0.0f,0.0f,1.0f
+	//};
+
+	//matScale.m[0][0] = worldTransform.scale_.x;
+	//matScale.m[1][1] = worldTransform.scale_.y;
+	//matScale.m[2][2] = worldTransform.scale_.z;
+
+	//worldTransform.matWorld_ = {
+	//	1.0f, 0.0f, 0.0f, 0.0f,
+	//	0.0f, 1.0f, 0.0f, 0.0f,
+	//  0.0f, 0.0f, 1.0f, 0.0f, 
+	//	0.0f, 0.0f, 0.0f, 1.0f
+	//};
+	//
+	//worldTransform.matWorld_ *= matScale;
+
+	////行列の転送
+	//worldTransform.TransferMatrix();
+
+	//----------------------------------------------
+	////x,y,z軸周りの回転角を設定
+	//worldTransform.rotation_ = {0.0f,0.0f,0.0f};
+
+	////Z軸回転行列を宣言
+	//Matrix4 matRotZ;
+
+	//matRotZ = {
+	//  1.0f, 0.0f, 0.0f, 0.0f,
+	//  0.0f, 1.0f, 0.0f, 0.0f,
+	//  0.0f,0.0f, 1.0f, 0.0f,
+	//  0.0f, 0.0f, 0.0f, 1.0f
+	//};
+
+	//matRotZ.m[0][0] = cos(worldTransform.rotation_.z);
+	//matRotZ.m[0][1] = sin(worldTransform.rotation_.z);
+	//matRotZ.m[1][0] = -sin(worldTransform.rotation_.z);
+	//matRotZ.m[1][1] = cos(worldTransform.rotation_.z);
+	//worldTransform.matWorld_ = {
+	//	1.0f, 0.0f, 0.0f, 0.0f, 
+	//	0.0f, 1.0f, 0.0f, 0.0f,
+	//    0.0f, 0.0f, 1.0f, 0.0f,
+	//	0.0f, 0.0f, 0.0f, 1.0f
+	//};
+	//worldTransform.matWorld_ *= matRotZ;
+
+	////-----------------------------------------------------------
+
+	//// X軸回転行列を宣言
+	//Matrix4 matRotX;
+
+	//matRotX = {
+	//	1.0f, 0.0f, 0.0f, 0.0f,
+	//	0.0f, 1.0f, 0.0f, 0.0f,
+	//    0.0f, 0.0f, 1.0f, 0.0f,
+	//	0.0f, 0.0f, 0.0f, 1.0f
+	//};
+
+	//matRotX.m[1][1] = cos(worldTransform.rotation_.x);
+	//matRotX.m[2][1] = sin(worldTransform.rotation_.x);
+	//matRotX.m[1][2] = -sin(worldTransform.rotation_.x);
+	//matRotX.m[2][2] = cos(worldTransform.rotation_.x);
+	//worldTransform.matWorld_ = {
+	//	1.0f, 0.0f, 0.0f, 0.0f,
+	//	0.0f, 1.0f, 0.0f, 0.0f,
+	//    0.0f, 0.0f, 1.0f, 0.0f, 
+	//	0.0f, 0.0f, 0.0f, 1.0f
+	//};
+	//worldTransform.matWorld_ *= matRotX;
+
+	////--------------------------------------------------------
+	//// Y軸回転行列を宣言
+	//Matrix4 matRotY;
+
+	//matRotY = {
+	//	1.0f, 0.0f, 0.0f, 0.0f,
+	//	0.0f, 1.0f, 0.0f, 0.0f,
+	//    0.0f, 0.0f, 1.0f, 0.0f,
+	//	0.0f, 0.0f, 0.0f, 1.0f
+	//};
+
+	//matRotY.m[0][0] = cos(worldTransform.rotation_.y);
+	//matRotY.m[2][0] = sin(worldTransform.rotation_.y);
+	//matRotY.m[2][0] = -sin(worldTransform.rotation_.y);
+	//matRotY.m[2][2] = cos(worldTransform.rotation_.y);
+	//worldTransform.matWorld_ = {
+	//	1.0f, 0.0f, 0.0f, 0.0f,
+	//	0.0f, 1.0f, 0.0f, 0.0f,
+	//    0.0f, 0.0f, 1.0f, 0.0f,
+	//	0.0f, 0.0f, 0.0f, 1.0f
+	//};
+	//worldTransform.matWorld_ *= matRotY;
+
+	////行列の転送
+	//worldTransform.TransferMatrix();
+
+//-----------------------------------------------------------------------------
+
+	////x,y,z軸周りの回転角を設定
+	//worldTransform.rotation_ = {PI / 4, PI / 4, PI / 4};
+	////合成用回転行列を宣言
+	//Matrix4 matRot;
+	////各軸用回転行列を宣言
+	//Matrix4 matRotX, matRotY, matRotZ;
+	//
+	//matRot = {
+	//	1.0f, 0.0f, 0.0f, 0.0f,
+	//	0.0f, 1.0f, 0.0f, 0.0f,
+	//	0.0f, 0.0f, 1.0f, 0.0f,
+	//	0.0f, 0.0f, 0.0f,1.0f};
+
+
+	//matRotZ = MathUtility::Matrix4Identity();
+	//matRotX = MathUtility::Matrix4Identity();
+	//matRotY = MathUtility::Matrix4Identity();
+	//
+
+	//matRotZ.m[0][0] = cos(worldTransform.rotation_.z);
+	//matRotZ.m[0][1] = sin(worldTransform.rotation_.z);
+	//matRotZ.m[1][0] = -sin(worldTransform.rotation_.z);
+	//matRotZ.m[1][1] = cos(worldTransform.rotation_.z);
+
+	//matRotX.m[1][1] = cos(worldTransform.rotation_.x);
+	//matRotX.m[1][2] = sin(worldTransform.rotation_.x);
+	//matRotX.m[2][1] = -sin(worldTransform.rotation_.x);
+	//matRotX.m[2][2] = cos(worldTransform.rotation_.x);
+
+	//matRotY.m[0][0] = cos(worldTransform.rotation_.y);
+	//matRotY.m[2][0] = sin(worldTransform.rotation_.y);
+	//matRotY.m[0][2] = -sin(worldTransform.rotation_.y);
+	//matRotY.m[2][2] = cos(worldTransform.rotation_.y);
+	//
+	////各軸の回転行列を合成
+	//matRot *= matRotZ *= matRotX *= matRotY;
+
+	//worldTransform.matWorld_ *= matRot;
+
+	//worldTransform.TransferMatrix();
+
+//-------------------------------------------------------------------------
+	//worldTransform.translation_ = {0, 10, 0};
+
+	//Matrix4 matTrans = MathUtility::Matrix4Identity();
+
+	//matTrans.m[3][0] += worldTransform.translation_.x;
+	//matTrans.m[3][1] += worldTransform.translation_.y;
+	//matTrans.m[3][2] += worldTransform.translation_.z;
+
+	//worldTransform.matWorld_ = {
+	//	1.0f, 0.0f, 0.0f, 0.0f,
+	//	0.0f, 1.0f, 0.0f, 0.0f,
+	//    0.0f, 0.0f, 1.0f, 0.0f,
+	//	0.0f, 0.0f, 0.0f, 1.0f
+	//};
+
+	//worldTransform.matWorld_ *= matTrans;
+
+	//worldTransform.TransferMatrix();
+	
+	worldTransform.scale_ = {5, 5, 5};
+	worldTransform.rotation_ = {PI / 4, PI / 4, 0.0f};
+	worldTransform.translation_ = {10, 10, 10};
+
+	Matrix4 matScale;
+	matScale = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+	            0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+	
+	Matrix4 matRot;
+	Matrix4 matRotX, matRotY, matRotZ;
+
+	matRot = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+	          0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+	
+	Matrix4 matTrans = MathUtility::Matrix4Identity();
+
+	matScale.m[0][0] = worldTransform.scale_.x;
+	matScale.m[1][1] = worldTransform.scale_.y;
+	matScale.m[2][2] = worldTransform.scale_.z;
+
+	matRotZ = MathUtility::Matrix4Identity();
+	matRotX = MathUtility::Matrix4Identity();
+	matRotY = MathUtility::Matrix4Identity();
+
+	matRotZ.m[0][0] = cos(worldTransform.rotation_.z);
+	matRotZ.m[0][1] = sin(worldTransform.rotation_.z);
+	matRotZ.m[1][0] = -sin(worldTransform.rotation_.z);
+	matRotZ.m[1][1] = cos(worldTransform.rotation_.z);
+
+	matRotX.m[1][1] = cos(worldTransform.rotation_.x);
+	matRotX.m[1][2] = sin(worldTransform.rotation_.x);
+	matRotX.m[2][1] = -sin(worldTransform.rotation_.x);
+	matRotX.m[2][2] = cos(worldTransform.rotation_.x);
+
+	matRotY.m[0][0] = cos(worldTransform.rotation_.y);
+	matRotY.m[2][0] = sin(worldTransform.rotation_.y);
+	matRotY.m[0][2] = -sin(worldTransform.rotation_.y);
+	matRotY.m[2][2] = cos(worldTransform.rotation_.y);
+
+	matTrans.m[3][0] += worldTransform.translation_.x;
+	matTrans.m[3][1] += worldTransform.translation_.y;
+	matTrans.m[3][2] += worldTransform.translation_.z;
+
+	worldTransform.matWorld_ = {
+	  1.0f, 0.0f, 0.0f, 0.0f,
+	  0.0f, 1.0f, 0.0f, 0.0f,
+	  0.0f, 0.0f, 1.0f, 0.0f,
+	  0.0f, 0.0f, 0.0f, 1.0f
+	};
+
+	matRot *= matRotZ *= matRotX *= matRotY;
+	worldTransform.matWorld_ *= matScale *= matRot *= matTrans;
+	worldTransform.TransferMatrix();
 }
 
 void GameScene::Update() {
