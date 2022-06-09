@@ -1,275 +1,166 @@
 ﻿#include "GameScene.h"
 #include "AxisIndicator.h"
+#include "MathUtility.h"
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
+#include "Transform.h"
+#include "WorldTransform.h"
 #include <cassert>
-#include"MathUtility.h"
+#include <random>
 
 float PI = 3.1415926;
 
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
-	delete model;
-	delete debugCamera;
+	delete model_;
+	delete debugCamera_;
 }
 
 void GameScene::Initialize() {
 
-	dxCommon = DirectXCommon::GetInstance();
-	input = Input::GetInstance();
-	audio = Audio::GetInstance();
-	debugText = DebugText::GetInstance();
+	dxCommon_ = DirectXCommon::GetInstance();
+	input_ = Input::GetInstance();
+	audio_ = Audio::GetInstance();
+	debugText_ = DebugText::GetInstance();
 	//ファイル名を指定してテクスチャを読み込む
-	textureHandle = TextureManager::Load("mario.jpg");
+	textureHandle_ = TextureManager::Load("mario.jpg");
 	//モデル生成
-	model = Model::Create();
+	model_ = Model::Create();
+
 	//ワールドトランスフォームの初期化
-	worldTransform.Initialize();
+	//worldTransform_.Initialize();
+	worldTransforms_[100].Initialize();
+
+	//カメラの視点座標を設定
+	//viewProjection_.eye = {0.0f, 0.0f,0.0f};
+	//カメラの注視座標を設定
+	viewProjection_.target = {10.0f, 0.0f, 0.0f};
+	
+	//カメラ上方向のベクトルを設定(右上45度指定)
+	viewProjection_.up = {cosf(PI / 4.0f), sinf(PI / 4.0f), 0.0f};
+
 	//ビュープロジェクションの初期化
-	viewProjection.Initialize();
+	viewProjection_.Initialize();
+
 	//デバックカメラの生成
-	debugCamera = new DebugCamera(600, 600);
+	debugCamera_ = new DebugCamera(600, 600);
 	//軸方向表示の表示を有効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
 	//軸方向は参照するビュープロジェクションを指定する
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera->GetViewProjection());
+	// AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
+
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
-	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera->GetViewProjection());
-	float hen[12][2];
-	float hen2[12][2];
+	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-	////x,y,z方向のスケーリングを設定
-	//worldTransform.scale_ = {1,5,1};
-
-	//Matrix4 matScale;
-
-	//matScale = {
-	//  1.0f,0.0f,0.0f,0.0f,
-	//  0.0f,1.0f,0.0f,0.0f,
-	//  0.0f,0.0f,1.0f,0.0f,
-	//  0.0f,0.0f,0.0f,1.0f
-	//};
-
-	//matScale.m[0][0] = worldTransform.scale_.x;
-	//matScale.m[1][1] = worldTransform.scale_.y;
-	//matScale.m[2][2] = worldTransform.scale_.z;
-
-	//worldTransform.matWorld_ = {
-	//	1.0f, 0.0f, 0.0f, 0.0f,
-	//	0.0f, 1.0f, 0.0f, 0.0f,
-	//  0.0f, 0.0f, 1.0f, 0.0f, 
-	//	0.0f, 0.0f, 0.0f, 1.0f
-	//};
-	//
-	//worldTransform.matWorld_ *= matScale;
-
-	////行列の転送
-	//worldTransform.TransferMatrix();
-
-	//----------------------------------------------
-	////x,y,z軸周りの回転角を設定
-	//worldTransform.rotation_ = {0.0f,0.0f,0.0f};
-
-	////Z軸回転行列を宣言
-	//Matrix4 matRotZ;
-
-	//matRotZ = {
-	//  1.0f, 0.0f, 0.0f, 0.0f,
-	//  0.0f, 1.0f, 0.0f, 0.0f,
-	//  0.0f,0.0f, 1.0f, 0.0f,
-	//  0.0f, 0.0f, 0.0f, 1.0f
-	//};
-
-	//matRotZ.m[0][0] = cos(worldTransform.rotation_.z);
-	//matRotZ.m[0][1] = sin(worldTransform.rotation_.z);
-	//matRotZ.m[1][0] = -sin(worldTransform.rotation_.z);
-	//matRotZ.m[1][1] = cos(worldTransform.rotation_.z);
-	//worldTransform.matWorld_ = {
-	//	1.0f, 0.0f, 0.0f, 0.0f, 
-	//	0.0f, 1.0f, 0.0f, 0.0f,
-	//    0.0f, 0.0f, 1.0f, 0.0f,
-	//	0.0f, 0.0f, 0.0f, 1.0f
-	//};
-	//worldTransform.matWorld_ *= matRotZ;
-
-	////-----------------------------------------------------------
-
-	//// X軸回転行列を宣言
-	//Matrix4 matRotX;
-
-	//matRotX = {
-	//	1.0f, 0.0f, 0.0f, 0.0f,
-	//	0.0f, 1.0f, 0.0f, 0.0f,
-	//    0.0f, 0.0f, 1.0f, 0.0f,
-	//	0.0f, 0.0f, 0.0f, 1.0f
-	//};
-
-	//matRotX.m[1][1] = cos(worldTransform.rotation_.x);
-	//matRotX.m[2][1] = sin(worldTransform.rotation_.x);
-	//matRotX.m[1][2] = -sin(worldTransform.rotation_.x);
-	//matRotX.m[2][2] = cos(worldTransform.rotation_.x);
-	//worldTransform.matWorld_ = {
-	//	1.0f, 0.0f, 0.0f, 0.0f,
-	//	0.0f, 1.0f, 0.0f, 0.0f,
-	//    0.0f, 0.0f, 1.0f, 0.0f, 
-	//	0.0f, 0.0f, 0.0f, 1.0f
-	//};
-	//worldTransform.matWorld_ *= matRotX;
-
-	////--------------------------------------------------------
-	//// Y軸回転行列を宣言
-	//Matrix4 matRotY;
-
-	//matRotY = {
-	//	1.0f, 0.0f, 0.0f, 0.0f,
-	//	0.0f, 1.0f, 0.0f, 0.0f,
-	//    0.0f, 0.0f, 1.0f, 0.0f,
-	//	0.0f, 0.0f, 0.0f, 1.0f
-	//};
-
-	//matRotY.m[0][0] = cos(worldTransform.rotation_.y);
-	//matRotY.m[2][0] = sin(worldTransform.rotation_.y);
-	//matRotY.m[2][0] = -sin(worldTransform.rotation_.y);
-	//matRotY.m[2][2] = cos(worldTransform.rotation_.y);
-	//worldTransform.matWorld_ = {
-	//	1.0f, 0.0f, 0.0f, 0.0f,
-	//	0.0f, 1.0f, 0.0f, 0.0f,
-	//    0.0f, 0.0f, 1.0f, 0.0f,
-	//	0.0f, 0.0f, 0.0f, 1.0f
-	//};
-	//worldTransform.matWorld_ *= matRotY;
-
-	////行列の転送
-	//worldTransform.TransferMatrix();
-
-//-----------------------------------------------------------------------------
-
-	////x,y,z軸周りの回転角を設定
-	//worldTransform.rotation_ = {PI / 4, PI / 4, PI / 4};
-	////合成用回転行列を宣言
-	//Matrix4 matRot;
-	////各軸用回転行列を宣言
-	//Matrix4 matRotX, matRotY, matRotZ;
-	//
-	//matRot = {
-	//	1.0f, 0.0f, 0.0f, 0.0f,
-	//	0.0f, 1.0f, 0.0f, 0.0f,
-	//	0.0f, 0.0f, 1.0f, 0.0f,
-	//	0.0f, 0.0f, 0.0f,1.0f};
+	//乱数シード生成期
+	std::random_device seed_gen;
+	//メルセンヌ・ツイスターの乱数エンジン
+	std::mt19937_64 engine(seed_gen());
+	//乱数範囲の指定
+	//乱数範囲(回転角用)
+	std::uniform_real_distribution<float> rotDist(0, 360);
+	// r乱数範囲(座標用)
+	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
 
 
-	//matRotZ = MathUtility::Matrix4Identity();
-	//matRotX = MathUtility::Matrix4Identity();
-	//matRotY = MathUtility::Matrix4Identity();
-	//
+	//範囲forで全てのワールドトランスフォーム順に処理する
+	for (WorldTransform& worldTransform : worldTransforms_) {
 
-	//matRotZ.m[0][0] = cos(worldTransform.rotation_.z);
-	//matRotZ.m[0][1] = sin(worldTransform.rotation_.z);
-	//matRotZ.m[1][0] = -sin(worldTransform.rotation_.z);
-	//matRotZ.m[1][1] = cos(worldTransform.rotation_.z);
+		worldTransform.Initialize();
+		float rotvalue = rotDist(engine);
+		float posX = posDist(engine);
+		float posY = posDist(engine);
+		float posZ = posDist(engine);
 
-	//matRotX.m[1][1] = cos(worldTransform.rotation_.x);
-	//matRotX.m[1][2] = sin(worldTransform.rotation_.x);
-	//matRotX.m[2][1] = -sin(worldTransform.rotation_.x);
-	//matRotX.m[2][2] = cos(worldTransform.rotation_.x);
-
-	//matRotY.m[0][0] = cos(worldTransform.rotation_.y);
-	//matRotY.m[2][0] = sin(worldTransform.rotation_.y);
-	//matRotY.m[0][2] = -sin(worldTransform.rotation_.y);
-	//matRotY.m[2][2] = cos(worldTransform.rotation_.y);
-	//
-	////各軸の回転行列を合成
-	//matRot *= matRotZ *= matRotX *= matRotY;
-
-	//worldTransform.matWorld_ *= matRot;
-
-	//worldTransform.TransferMatrix();
-
-//-------------------------------------------------------------------------
-	//worldTransform.translation_ = {0, 10, 0};
-
-	//Matrix4 matTrans = MathUtility::Matrix4Identity();
-
-	//matTrans.m[3][0] += worldTransform.translation_.x;
-	//matTrans.m[3][1] += worldTransform.translation_.y;
-	//matTrans.m[3][2] += worldTransform.translation_.z;
-
-	//worldTransform.matWorld_ = {
-	//	1.0f, 0.0f, 0.0f, 0.0f,
-	//	0.0f, 1.0f, 0.0f, 0.0f,
-	//    0.0f, 0.0f, 1.0f, 0.0f,
-	//	0.0f, 0.0f, 0.0f, 1.0f
-	//};
-
-	//worldTransform.matWorld_ *= matTrans;
-
-	//worldTransform.TransferMatrix();
-	
-	worldTransform.scale_ = {5, 5, 5};
-	worldTransform.rotation_ = {PI / 4, PI / 4, 0.0f};
-	worldTransform.translation_ = {10, 10, 10};
-
-	Matrix4 matScale;
-	matScale = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-	            0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-	
-	Matrix4 matRot;
-	Matrix4 matRotX, matRotY, matRotZ;
-
-	matRot = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-	          0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-	
-	Matrix4 matTrans = MathUtility::Matrix4Identity();
-
-	matScale.m[0][0] = worldTransform.scale_.x;
-	matScale.m[1][1] = worldTransform.scale_.y;
-	matScale.m[2][2] = worldTransform.scale_.z;
-
-	matRotZ = MathUtility::Matrix4Identity();
-	matRotX = MathUtility::Matrix4Identity();
-	matRotY = MathUtility::Matrix4Identity();
-
-	matRotZ.m[0][0] = cos(worldTransform.rotation_.z);
-	matRotZ.m[0][1] = sin(worldTransform.rotation_.z);
-	matRotZ.m[1][0] = -sin(worldTransform.rotation_.z);
-	matRotZ.m[1][1] = cos(worldTransform.rotation_.z);
-
-	matRotX.m[1][1] = cos(worldTransform.rotation_.x);
-	matRotX.m[1][2] = sin(worldTransform.rotation_.x);
-	matRotX.m[2][1] = -sin(worldTransform.rotation_.x);
-	matRotX.m[2][2] = cos(worldTransform.rotation_.x);
-
-	matRotY.m[0][0] = cos(worldTransform.rotation_.y);
-	matRotY.m[2][0] = sin(worldTransform.rotation_.y);
-	matRotY.m[0][2] = -sin(worldTransform.rotation_.y);
-	matRotY.m[2][2] = cos(worldTransform.rotation_.y);
-
-	matTrans.m[3][0] += worldTransform.translation_.x;
-	matTrans.m[3][1] += worldTransform.translation_.y;
-	matTrans.m[3][2] += worldTransform.translation_.z;
-
-	worldTransform.matWorld_ = {
-	  1.0f, 0.0f, 0.0f, 0.0f,
-	  0.0f, 1.0f, 0.0f, 0.0f,
-	  0.0f, 0.0f, 1.0f, 0.0f,
-	  0.0f, 0.0f, 0.0f, 1.0f
-	};
-
-	matRot *= matRotZ *= matRotX *= matRotY;
-	worldTransform.matWorld_ *= matScale *= matRot *= matTrans;
-	worldTransform.TransferMatrix();
-}
+		//	// x,y,z方向のスケーリング設定
+		worldTransform.scale_ = {1.0f, 1.0f, 1.0f};
+		//	// x,y,z軸周りの回転角を設定
+		worldTransform.rotation_ = {rotvalue, rotvalue, rotvalue};
+		//	// x,y,z軸周りの平行移動を設定
+		worldTransform.translation_ = {posX, posY, posZ};
+		//	//スケーリング・回転・平行移動を合成した行列を計算してワールドトランスフォームに代入
+		//
+		affinMove::Transform(worldTransform);
+		//
+		worldTransform.TransferMatrix();
+	}
+};
 
 void GameScene::Update() {
 	//デバックカメラの更新
-	debugCamera->Update();
+	debugCamera_->Update();
+
+	Vector3 move = {0.0f, 0.0f, 0.0f};
+
+	//視点の移動速さ
+	const float kEyeSpeed = 0.2f;
+
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_W)) {
+		move.z += kEyeSpeed;
+	} else if (input_->PushKey(DIK_S)) {
+		move.z -= kEyeSpeed;
+	}
+	//視点移動(ベクトルの加算)
+	viewProjection_.eye += move;
+	//-------------------------------------
+
+	//視点の移動速さ
+	const float kTargetSpeed = 0.2f;
+
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_LEFT)) {
+		move.x += kTargetSpeed;
+	} else if (input_->PushKey(DIK_RIGHT)) {
+		move.x -= kTargetSpeed;
+	}
+
+	//視点移動(ベクトルの加算)
+	viewProjection_.target += move;
+
+	//上方向回転処理
+	{
+		//上方向の回転速さ[ラジアン/frame]
+		const float kUpRotSpeed = 0.05f;
+
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_SPACE)) {
+			viewAngle += kUpRotSpeed;
+			//2πを超えたら0に戻す
+			viewAngle = fmodf(viewAngle, PI * 2.0f);
+		}
+		//上方向ベクトルを計算(半径1円周上の座標)
+		viewProjection_.up = {cosf(viewAngle), sinf(viewAngle), 0.0f};
+
+		//行列の再計算
+		viewProjection_.UpdateMatrix();
+
+		//デバッグ用表示
+		debugText_->SetPos(50, 90);
+		debugText_->Printf(
+		  "up:(%f,%f,%f)", viewProjection_.up.x, viewProjection_.up.y, viewProjection_.up.z);
+
+	}
+
+
+
+
+
+	//行列の再計算
+	viewProjection_.UpdateMatrix();
+
+	//デバッグ用表示
+	debugText_->SetPos(50, 70);
+	debugText_->Printf(
+	  "target(%f,%f,%f)", viewProjection_.target.x, viewProjection_.target.y, viewProjection_.target.z);
 }
 
 void GameScene::Draw() {
 
 	// コマンドリストの取得
-	ID3D12GraphicsCommandList* commandList = dxCommon->GetCommandList();
+	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 
 #pragma region 背景スプライト描画
 	// 背景スプライト描画前処理
@@ -282,51 +173,27 @@ void GameScene::Draw() {
 	// スプライト描画後処理
 	Sprite::PostDraw();
 	// 深度バッファクリア
-	dxCommon->ClearDepthBuffer();
+	dxCommon_->ClearDepthBuffer();
 #pragma endregion
 
 #pragma region 3Dオブジェクト描画
 
 	// 3Dオブジェクト描画前処理
 	Model::PreDraw(commandList);
-	//モデルカメラを連動
-	model->Draw(worldTransform, debugCamera->GetViewProjection(), textureHandle);
 
 	/// <summary>
-	/// ここに3Dオブジェクトの描画処理を追加できる
-	/// </summary>
-	///
-	// 3Dモデル描画
-	// model_->Draw(worldTransform_, viewProjection_, textureHandle_);
-	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
-	//for (int i = 0; i < 12; i++) {
-	//	// PrimitiveDrawer::GetInstance()->DrawLine3d(hen[i][0], hen[i][1], Vector4(0, 70, 0, 255));
-	//	PrimitiveDrawer::GetInstance()->DrawLine3d(
-	//	  ten[hen2[i][0]], ten[hen2[i][1]], Vector4(0, 70, 0, 255));
-	//}
 
-	// PrimitiveDrawer::GetInstance()->DrawLine3d(box[i % 4], box[(i + 1) % 4], Vector4(0, 70, 0,
-	// 255));			//1^4 PrimitiveDrawer::GetInstance()->DrawLine3d(box[i % 4 + 4], box[(i + 1)
-	// % 4 + 4], Vector4(0, 70, 0, 255));	//5^8 PrimitiveDrawer::GetInstance()->DrawLine3d(box[i %
-	// 4], box[i % 4 +4], Vector4(0, 70, 0, 255));				//縦
+	//ここに3Dオブジェクトの描画処理を追加できる
+	 for (WorldTransform& worldTransform : worldTransforms_) {
+		//model ->Draw(worldTransform,  viewProjection_, textureHandle);
+		model_->Draw(worldTransform, viewProjection_, textureHandle_);
 
-	/*
-	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(0, 0, 0), Vector3(5, 0, 0), Vector4(255, 0,
-	0, 255)); PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(5, 0, 0), Vector3(5, 5, 0),
-	Vector4(255, 0, 0, 255)); PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(5, 5, 0),
-	Vector3(0, 5, 0), Vector4(255, 0, 0, 255));
-	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(0, 5, 0), Vector3(0, 0, 0), Vector4(255, 0,
-	0, 255)); PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(0, 0, 5), Vector3(0, 5, 5),
-	Vector4(255, 0, 0, 255)); PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(0, 0, 5),
-	Vector3(5, 0, 5), Vector4(255, 0, 0, 255));
-	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(5, 0, 5), Vector3(5, 5, 5), Vector4(255, 0,
-	0, 255)); PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(5, 5, 5), Vector3(0, 5, 5),
-	Vector4(255, 0, 0, 255)); PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(0, 0, 0),
-	Vector3(0, 0, 5), Vector4(255, 0, 0, 255));
-	PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(5, 0, 0), Vector3(5, 0, 5), Vector4(255, 0,
-	0, 255)); PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(5, 5, 0), Vector3(5, 5, 5),
-	Vector4(255, 0, 0, 255)); PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(0, 5, 0),
-	Vector3(0, 5, 5), Vector4(255, 0, 0, 255));*/
+		//model_->Draw(worldTransform, debugCamera_->GetViewProjection(), textureHandle_);
+	 }
+
+	//model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+
+	//model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -341,7 +208,7 @@ void GameScene::Draw() {
 	/// </summary>
 
 	// デバッグテキストの描画
-	debugText->DrawAll(commandList);
+	debugText_->DrawAll(commandList);
 	//
 	// スプライト描画後処理
 	Sprite::PostDraw();
