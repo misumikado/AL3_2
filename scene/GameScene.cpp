@@ -29,16 +29,62 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//ワールドトランスフォームの初期化
-	//worldTransform_.Initialize();
-	worldTransforms_[100].Initialize();
+	// worldTransform_.Initialize();
+	
+	//キャラクターの大元
+	worldTransforms_[PartId::kRoot].Initialize();
+	//脊椎
+	worldTransforms_[PartId::kSpine].Initialize();
+	worldTransforms_[PartId::kSpine].parent_ = &worldTransforms_[PartId::kRoot];
+	worldTransforms_[PartId::kSpine].translation_ = {0.0f, 4.5f, 0.0f};
+
+	//上半身
+	//胸
+	worldTransforms_[PartId::kChest].Initialize();
+	worldTransforms_[PartId::kChest].parent_ = &worldTransforms_[PartId::kSpine];
+	worldTransforms_[PartId::kChest].translation_ = {0, 0, 0};
+
+	//頭
+	worldTransforms_[PartId::kHead].Initialize();
+	worldTransforms_[PartId::kHead].parent_ = &worldTransforms_[PartId::kChest];
+	worldTransforms_[PartId::kHead].translation_ = {0, 2.5f, 0};
+
+	//左腕
+	worldTransforms_[PartId::kArmL].Initialize();
+	worldTransforms_[PartId::kArmL].parent_ = &worldTransforms_[PartId::kChest];
+	worldTransforms_[PartId::kArmL].translation_ = {-2.5f, 0, 0};
+
+	//右腕
+	worldTransforms_[PartId::kArmR].Initialize();
+	worldTransforms_[PartId::kArmR].parent_ = &worldTransforms_[PartId::kChest];
+	worldTransforms_[PartId::kArmR].translation_ = {2.5f, 0, 0};
+
+	//下半身
+	//尻
+	worldTransforms_[PartId::kHip].Initialize();
+	worldTransforms_[PartId::kHip].parent_ = &worldTransforms_[PartId::kSpine];
+	worldTransforms_[PartId::kHip].translation_ = {0, -2.5f, 0};
+
+	//左足
+	worldTransforms_[PartId::kLegL].Initialize();
+	worldTransforms_[PartId::kLegL].parent_ = &worldTransforms_[PartId::kHip];
+	worldTransforms_[PartId::kLegL].translation_ = {-2.5f, -2.5f, 0};
+
+	//右足
+	worldTransforms_[PartId::kLegR].Initialize();
+	worldTransforms_[PartId::kLegR].parent_ = &worldTransforms_[PartId::kHip];
+	worldTransforms_[PartId::kLegR].translation_ = {2.5f, -2.5f, 0};
 
 	//カメラの視点座標を設定
-	//viewProjection_.eye = {0.0f, 0.0f,0.0f};
+	// viewProjection_.eye = {0.0f, 0.0f,0.0f};
 	//カメラの注視座標を設定
-	viewProjection_.target = {10.0f, 0.0f, 0.0f};
-	
+	// viewProjection_.target = {10.0f, 0.0f, 0.0f};
+
 	//カメラ上方向のベクトルを設定(右上45度指定)
-	viewProjection_.up = {cosf(PI / 4.0f), sinf(PI / 4.0f), 0.0f};
+	// viewProjection_.up = {cosf(PI / 4.0f), sinf(PI / 4.0f), 0.0f};
+
+	//カメラ垂直方向視野角を設定
+	// viewProjection_.fovAngleY = 10*PI/180;
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
@@ -63,98 +109,53 @@ void GameScene::Initialize() {
 	std::uniform_real_distribution<float> rotDist(0, 360);
 	// r乱数範囲(座標用)
 	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
-
-
-	//範囲forで全てのワールドトランスフォーム順に処理する
-	for (WorldTransform& worldTransform : worldTransforms_) {
-
-		worldTransform.Initialize();
-		float rotvalue = rotDist(engine);
-		float posX = posDist(engine);
-		float posY = posDist(engine);
-		float posZ = posDist(engine);
-
-		//	// x,y,z方向のスケーリング設定
-		worldTransform.scale_ = {1.0f, 1.0f, 1.0f};
-		//	// x,y,z軸周りの回転角を設定
-		worldTransform.rotation_ = {rotvalue, rotvalue, rotvalue};
-		//	// x,y,z軸周りの平行移動を設定
-		worldTransform.translation_ = {posX, posY, posZ};
-		//	//スケーリング・回転・平行移動を合成した行列を計算してワールドトランスフォームに代入
-		//
-		affinMove::Transform(worldTransform);
-		//
-		worldTransform.TransferMatrix();
-	}
 };
 
 void GameScene::Update() {
 	//デバックカメラの更新
 	debugCamera_->Update();
 
-	Vector3 move = {0.0f, 0.0f, 0.0f};
-
-	//視点の移動速さ
-	const float kEyeSpeed = 0.2f;
-
-	//押した方向で移動ベクトルを変更
-	if (input_->PushKey(DIK_W)) {
-		move.z += kEyeSpeed;
-	} else if (input_->PushKey(DIK_S)) {
-		move.z -= kEyeSpeed;
-	}
-	//視点移動(ベクトルの加算)
-	viewProjection_.eye += move;
-	//-------------------------------------
-
-	//視点の移動速さ
-	const float kTargetSpeed = 0.2f;
-
-	//押した方向で移動ベクトルを変更
-	if (input_->PushKey(DIK_LEFT)) {
-		move.x += kTargetSpeed;
-	} else if (input_->PushKey(DIK_RIGHT)) {
-		move.x -= kTargetSpeed;
-	}
-
-	//視点移動(ベクトルの加算)
-	viewProjection_.target += move;
-
-	//上方向回転処理
-	{
-		//上方向の回転速さ[ラジアン/frame]
-		const float kUpRotSpeed = 0.05f;
-
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_SPACE)) {
-			viewAngle += kUpRotSpeed;
-			//2πを超えたら0に戻す
-			viewAngle = fmodf(viewAngle, PI * 2.0f);
-		}
-		//上方向ベクトルを計算(半径1円周上の座標)
-		viewProjection_.up = {cosf(viewAngle), sinf(viewAngle), 0.0f};
-
-		//行列の再計算
-		viewProjection_.UpdateMatrix();
-
-		//デバッグ用表示
-		debugText_->SetPos(50, 90);
-		debugText_->Printf(
-		  "up:(%f,%f,%f)", viewProjection_.up.x, viewProjection_.up.y, viewProjection_.up.z);
-
-	}
-
-
-
-
-
 	//行列の再計算
 	viewProjection_.UpdateMatrix();
+	Vector3 move = {0.0f, 0.0f, 0.0f};
 
-	//デバッグ用表示
-	debugText_->SetPos(50, 70);
-	debugText_->Printf(
-	  "target(%f,%f,%f)", viewProjection_.target.x, viewProjection_.target.y, viewProjection_.target.z);
+	const float kCharacterSpeed = 0.2f;
+
+	if (input_->PushKey(DIK_LEFT)) {
+		move.x -= kCharacterSpeed;
+	} else if (input_->PushKey(DIK_RIGHT)) {
+		move.x += kCharacterSpeed;
+	}
+
+	//親
+	worldTransforms_[PartId::kRoot].translation_ += move;
+	affinMove::Translate(worldTransforms_[kRoot]);
+	worldTransforms_[0].TransferMatrix();
+
+	//子の更新
+	for (int i = 1; i < 9; i++) {
+		affinMove::Transform(worldTransforms_[i]);
+		worldTransforms_[i].matWorld_ *= worldTransforms_[i].parent_->matWorld_;
+		worldTransforms_[i].TransferMatrix();
+	}
+	//上半身回転処理
+	{
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_U)) {
+			worldTransforms_[PartId::kChest].rotation_.y += 0.1f;
+		} else if (input_->PushKey(DIK_I)) {
+			worldTransforms_[PartId::kChest].rotation_.y -= 0.1f;
+		}
+	}
+	//下半身回転処理
+	{
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_J)) {
+			worldTransforms_[PartId::kHip].rotation_.y += 0.1f;
+		} else if (input_->PushKey(DIK_K)) {
+			worldTransforms_[PartId::kHip].rotation_.y -= 0.1f;
+		}
+	}
 }
 
 void GameScene::Draw() {
@@ -184,16 +185,13 @@ void GameScene::Draw() {
 	/// <summary>
 
 	//ここに3Dオブジェクトの描画処理を追加できる
-	 for (WorldTransform& worldTransform : worldTransforms_) {
-		//model ->Draw(worldTransform,  viewProjection_, textureHandle);
-		model_->Draw(worldTransform, viewProjection_, textureHandle_);
+	// model ->Draw(worldTransform,  viewProjection_, textureHandle);
+	for (int i = 2; i < 9; i++) {
+		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
+	}
+	// model_->Draw(worldTransform_, viewProjection_, textureHandle_);
 
-		//model_->Draw(worldTransform, debugCamera_->GetViewProjection(), textureHandle_);
-	 }
-
-	//model_->Draw(worldTransform_, viewProjection_, textureHandle_);
-
-	//model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
+	// model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

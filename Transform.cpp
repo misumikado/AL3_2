@@ -72,7 +72,7 @@ void Rot(WorldTransform &worldTransform_) { //‰ñ“]
 }
 
 //•½sˆÚ“®--------------------------------------------------------------------------------------
-void Trans(WorldTransform &worldTransform_) { //ˆÚ“®
+void Translate(WorldTransform &worldTransform_) { //ˆÚ“®
 
 	// X,Y,Z•ûŒü‚Ì•½sˆÚ“®
 	
