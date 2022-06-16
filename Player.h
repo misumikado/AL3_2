@@ -9,6 +9,7 @@
 #include "WorldTransform.h"
 #include <math.h>
 #include"DebugText.h"
+#include"PlayerBullet.h"
 
 
 #pragma once
@@ -16,21 +17,27 @@
 ///自キャラ
 /// </summary>
 class Player {
-  public:
+
+public:
 	///< summary>
 	///初期化
 	/// </summary>
 	void Initialize(Model* model, uint32_t textureHandle);
 
 	///< summary>
-	///初期化
+	///更新
 	/// </summary>
 	void Update();
 
 	///< summary>
-	///初期化
+	///描画
 	/// </summary>
 	void Draw(ViewProjection viewprojection);
+
+	///< summary>
+	///初期化
+	/// </summary>
+	void Attack();
 
   private:
 	//ワールド返還データ
@@ -41,5 +48,8 @@ class Player {
 	uint32_t textureHandle_ = 0u;
 	Input* input_ = nullptr;
 	DebugText* debugText_ = nullptr;
+
+	//弾
+	PlayerBullet* bullet_ = nullptr;
 };
 

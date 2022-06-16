@@ -25,6 +25,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 	worldTransform_.Initialize();
 }
 void Player::Update() {
+
 	Vector3 move = {0, 0, 0};
 
 	const float CharacterSpeed = 0.2f;
@@ -56,10 +57,28 @@ void Player::Update() {
 	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
 	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
+	
+	//回転処理
+	Vector3 rotY = {0, 0, 0};
+	worldTransform_.rotation_ += rotY;
+	affinMove::Transform(worldTransform_);
 	worldTransform_.TransferMatrix();
+
+	{
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_U)) {
+			worldTransform_.rotation_.y += 0.1f;
+		} else if (input_->PushKey(DIK_I)) {
+			worldTransform_.rotation_.y -= 0.1f;
+		}
+	}
 }
 
 void Player::Draw(ViewProjection viewprojection) {
 	// 3Dモデルを描画
 	model_->Draw(worldTransform_, viewprojection, textureHandle_);
+}
+
+void Player::Attack() {
+
 }
