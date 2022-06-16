@@ -11,7 +11,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include<DirectXMath.h>
-#include"Player/Player.h"
+#include"Player.h"
 
 /// <summary>
 /// ゲームシーン
