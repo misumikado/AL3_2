@@ -9,6 +9,8 @@
 #include "WorldTransform.h"
 #include <math.h>
 #include"DebugText.h"
+
+
 #pragma once
 ///<summary>
 ///Ž©ƒLƒƒƒ‰

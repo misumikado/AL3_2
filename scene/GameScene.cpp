@@ -7,6 +7,7 @@
 #include "WorldTransform.h"
 #include <cassert>
 #include <random>
+#include "Player.h"
 
 float PI = 3.1415926;
 
@@ -15,6 +16,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
+	delete player_;
 }
 
 void GameScene::Initialize() {
@@ -28,53 +30,15 @@ void GameScene::Initialize() {
 	//モデル生成
 	model_ = Model::Create();
 
+	//自キャラの生成
+	player_ = new Player();
+	//自キャラの初期化
+	player_->Initialize(model_,textureHandle_);
+
 	//ワールドトランスフォームの初期化
 	// worldTransform_.Initialize();
 	
-	//キャラクターの大元
-	worldTransforms_[PartId::kRoot].Initialize();
-	//脊椎
-	worldTransforms_[PartId::kSpine].Initialize();
-	worldTransforms_[PartId::kSpine].parent_ = &worldTransforms_[PartId::kRoot];
-	worldTransforms_[PartId::kSpine].translation_ = {0.0f, 4.5f, 0.0f};
-
-	//上半身
-	//胸
-	worldTransforms_[PartId::kChest].Initialize();
-	worldTransforms_[PartId::kChest].parent_ = &worldTransforms_[PartId::kSpine];
-	worldTransforms_[PartId::kChest].translation_ = {0, 0, 0};
-
-	//頭
-	worldTransforms_[PartId::kHead].Initialize();
-	worldTransforms_[PartId::kHead].parent_ = &worldTransforms_[PartId::kChest];
-	worldTransforms_[PartId::kHead].translation_ = {0, 2.5f, 0};
-
-	//左腕
-	worldTransforms_[PartId::kArmL].Initialize();
-	worldTransforms_[PartId::kArmL].parent_ = &worldTransforms_[PartId::kChest];
-	worldTransforms_[PartId::kArmL].translation_ = {-2.5f, 0, 0};
-
-	//右腕
-	worldTransforms_[PartId::kArmR].Initialize();
-	worldTransforms_[PartId::kArmR].parent_ = &worldTransforms_[PartId::kChest];
-	worldTransforms_[PartId::kArmR].translation_ = {2.5f, 0, 0};
-
-	//下半身
-	//尻
-	worldTransforms_[PartId::kHip].Initialize();
-	worldTransforms_[PartId::kHip].parent_ = &worldTransforms_[PartId::kSpine];
-	worldTransforms_[PartId::kHip].translation_ = {0, -2.5f, 0};
-
-	//左足
-	worldTransforms_[PartId::kLegL].Initialize();
-	worldTransforms_[PartId::kLegL].parent_ = &worldTransforms_[PartId::kHip];
-	worldTransforms_[PartId::kLegL].translation_ = {-2.5f, -2.5f, 0};
-
-	//右足
-	worldTransforms_[PartId::kLegR].Initialize();
-	worldTransforms_[PartId::kLegR].parent_ = &worldTransforms_[PartId::kHip];
-	worldTransforms_[PartId::kLegR].translation_ = {2.5f, -2.5f, 0};
-
+	
 	//カメラの視点座標を設定
 	// viewProjection_.eye = {0.0f, 0.0f,0.0f};
 	//カメラの注視座標を設定
@@ -112,50 +76,25 @@ void GameScene::Initialize() {
 };
 
 void GameScene::Update() {
-	//デバックカメラの更新
-	debugCamera_->Update();
-
+//#ifdef _DEBUG
+//	if (input_->TriggerKey(DIK_J)) {
+//		isDebugCameraActive_ = true;
+//	}
+//#endif 
+//
+//	if (isDebugCameraActive_) {
+//		//デバックカメラの更新
+//		debugCamera_->Update();
+//		viewProjection_.matView = ;
+//		viewProjection_.matProjection = ;
+//		
+//	}
 	//行列の再計算
 	viewProjection_.UpdateMatrix();
-	Vector3 move = {0.0f, 0.0f, 0.0f};
 
-	const float kCharacterSpeed = 0.2f;
+	//自キャラの更新
+	player_->Update();
 
-	if (input_->PushKey(DIK_LEFT)) {
-		move.x -= kCharacterSpeed;
-	} else if (input_->PushKey(DIK_RIGHT)) {
-		move.x += kCharacterSpeed;
-	}
-
-	//親
-	worldTransforms_[PartId::kRoot].translation_ += move;
-	affinMove::Translate(worldTransforms_[kRoot]);
-	worldTransforms_[0].TransferMatrix();
-
-	//子の更新
-	for (int i = 1; i < 9; i++) {
-		affinMove::Transform(worldTransforms_[i]);
-		worldTransforms_[i].matWorld_ *= worldTransforms_[i].parent_->matWorld_;
-		worldTransforms_[i].TransferMatrix();
-	}
-	//上半身回転処理
-	{
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_U)) {
-			worldTransforms_[PartId::kChest].rotation_.y += 0.1f;
-		} else if (input_->PushKey(DIK_I)) {
-			worldTransforms_[PartId::kChest].rotation_.y -= 0.1f;
-		}
-	}
-	//下半身回転処理
-	{
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_J)) {
-			worldTransforms_[PartId::kHip].rotation_.y += 0.1f;
-		} else if (input_->PushKey(DIK_K)) {
-			worldTransforms_[PartId::kHip].rotation_.y -= 0.1f;
-		}
-	}
 }
 
 void GameScene::Draw() {
@@ -185,14 +124,8 @@ void GameScene::Draw() {
 	/// <summary>
 
 	//ここに3Dオブジェクトの描画処理を追加できる
-	// model ->Draw(worldTransform,  viewProjection_, textureHandle);
-	for (int i = 2; i < 9; i++) {
-		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
-	}
-	// model_->Draw(worldTransform_, viewProjection_, textureHandle_);
-
-	// model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
-
+	player_->Draw(viewProjection_);
+	
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion

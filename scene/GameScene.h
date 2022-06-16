@@ -11,6 +11,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include<DirectXMath.h>
+#include"Player.h"
 
 /// <summary>
 /// ゲームシーン
@@ -32,6 +33,10 @@ class GameScene {
 	/// 初期化
 	/// </summary>
 	void Initialize();
+
+	//自キャラ
+	Player* player_ = nullptr;
+
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
 
@@ -46,6 +51,8 @@ class GameScene {
 
 	//デバックカメラ
 	DebugCamera* debugCamera_ = nullptr;
+	//デバッグカメラ
+	bool isDebugCameraActive_ = false;
 
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;
