@@ -7,7 +7,7 @@
 #include "WorldTransform.h"
 #include <cassert>
 #include <random>
-#include "Player.h"
+#include "Player/Player.h"
 
 float PI = 3.1415926;
 

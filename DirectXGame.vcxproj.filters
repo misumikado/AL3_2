@@ -49,11 +49,8 @@
     <Filter Include="ヘッダー ファイル\math">
       <UniqueIdentifier>{647f4977-924a-4954-923f-5619e5afc9a3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Player">
-      <UniqueIdentifier>{7af5da3e-fc98-4d57-8bf1-1931b2d14590}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Player">
-      <UniqueIdentifier>{d61a136e-09a0-4eb9-85d1-3d247853cbf4}</UniqueIdentifier>
+    <Filter Include="Player">
+      <UniqueIdentifier>{48b2df19-0c1b-40af-b1ac-4fe6057b1581}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -75,8 +72,8 @@
     <ClCompile Include="Transform.cpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>ソース ファイル\Player</Filter>
+    <ClCompile Include="Player\Player.cpp">
+      <Filter>Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -164,8 +161,8 @@
     <ClInclude Include="Transform.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>ヘッダー ファイル\Player</Filter>
+    <ClInclude Include="Player\Player.h">
+      <Filter>Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
