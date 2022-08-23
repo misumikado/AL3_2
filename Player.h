@@ -1,55 +1,43 @@
+ï»¿#pragma once
 #include "Audio.h"
 #include "DebugCamera.h"
+#include "DebugText.h"
 #include "DirectXCommon.h"
 #include "Input.h"
 #include "Model.h"
+#include "PlayerBullet.h"
 #include "SafeDelete.h"
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include <math.h>
-#include"DebugText.h"
-#include"PlayerBullet.h"
 
-
-#pragma once
-///<summary>
-///©ƒLƒƒƒ‰
-/// </summary>
 class Player {
-
-public:
-	///< summary>
-	///‰Šú‰»
+  public:
+	/// <summary>
+	///
 	/// </summary>
-	void Initialize(Model* model, uint32_t textureHandle);
+	void Initalize(Model* model, uint32_t textureHandle);
 
-	///< summary>
-	///XV
+	/// <summary>
+	///
 	/// </summary>
 	void Update();
 
-	///< summary>
-	///•`‰æ
-	/// </summary>
-	void Draw(ViewProjection viewprojection);
-
-	///< summary>
-	///‰Šú‰»
-	/// </summary>
+	void Move();
+	void Rotate();
 	void Attack();
+	/// <summary>
+	///
+	/// </summary>
+	void Draw(ViewProjection& viewProjection);
 
   private:
-	//ƒ[ƒ‹ƒh•ÔŠÒƒf[ƒ^
-	WorldTransform worldTransform_;
-	//ƒ‚ƒfƒ‹
 	Model* model_ = nullptr;
-	//ƒeƒNƒXƒ`ƒƒƒnƒ“ƒhƒ‹
-	uint32_t textureHandle_ = 0u;
 	Input* input_ = nullptr;
 	DebugText* debugText_ = nullptr;
-
-	//’e
+	WorldTransform worldTransforms_;
+	uint32_t textureHandle_ = 0;
+	//Âfe
 	PlayerBullet* bullet_ = nullptr;
 };
-

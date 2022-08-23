@@ -3,13 +3,10 @@
 #include "MathUtility.h"
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
-#include "Transform.h"
-#include "WorldTransform.h"
 #include <cassert>
 #include <random>
-#include "Player.h"
 
-float PI = 3.1415926;
+#include "affinTransformation.h"
 
 GameScene::GameScene() {}
 
@@ -30,71 +27,60 @@ void GameScene::Initialize() {
 	//モデル生成
 	model_ = Model::Create();
 
-	//自キャラの生成
-	player_ = new Player();
-	//自キャラの初期化
-	player_->Initialize(model_,textureHandle_);
+	//乱数シード生成器
+	std::random_device seed_gen;
+	//メルセンヌ・ツイスターの乱数エンジン
+	std::mt19937_64 engine(seed_gen());
+	//乱数範囲の指定
+	std::uniform_real_distribution<float> dist(-10, 10); // dist(最大値,最小値)
+	//範囲forで全てのワールドトランスフォームを順に処理する
+	for (WorldTransform& worldTransform : worldTransforms_) {
 
-	//ワールドトランスフォームの初期化
-	// worldTransform_.Initialize();
-	
-	
-	//カメラの視点座標を設定
-	// viewProjection_.eye = {0.0f, 0.0f,0.0f};
-	//カメラの注視座標を設定
-	// viewProjection_.target = {10.0f, 0.0f, 0.0f};
+		//ワールドトランスフォームの初期化
+		worldTransform.Initialize();
 
-	//カメラ上方向のベクトルを設定(右上45度指定)
-	// viewProjection_.up = {cosf(PI / 4.0f), sinf(PI / 4.0f), 0.0f};
+		//乱数エンジンを渡し、指定範囲からランダムな数値を得る
+		float rRot = dist(engine);
+		float rTransX = dist(engine);
+		float rTransY = dist(engine);
+		float rTransZ = dist(engine);
+		// X,Y,Z方向のスケーリング
+		worldTransform.scale_ = {1, 1, 1};
+		// X,Y,Z方向の回転
+		worldTransform.rotation_ = {rRot, rRot, rRot};
+		// X,Y,Z方向の平行移動
+		worldTransform.translation_ = {rTransX, rTransY, rTransZ};
 
-	//カメラ垂直方向視野角を設定
-	// viewProjection_.fovAngleY = 10*PI/180;
+		affinTransformation::Transfer(worldTransform);
+		//行列の転送
+		worldTransform.TransferMatrix();
+	}
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
-
 	//デバックカメラの生成
 	debugCamera_ = new DebugCamera(600, 600);
 	//軸方向表示の表示を有効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
 	//軸方向は参照するビュープロジェクションを指定する
 	// AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
-
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-	//乱数シード生成期
-	std::random_device seed_gen;
-	//メルセンヌ・ツイスターの乱数エンジン
-	std::mt19937_64 engine(seed_gen());
-	//乱数範囲の指定
-	//乱数範囲(回転角用)
-	std::uniform_real_distribution<float> rotDist(0, 360);
-	// r乱数範囲(座標用)
-	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
-};
+	Vector3 ten_move[8];
 
+	//自キャラの生成
+	player_ = new Player();
+	//自キャラの初期化
+	player_->Initalize(model_, textureHandle_);
+}
 void GameScene::Update() {
-//#ifdef _DEBUG
-//	if (input_->TriggerKey(DIK_J)) {
-//		isDebugCameraActive_ = true;
-//	}
-//#endif 
-//
-//	if (isDebugCameraActive_) {
-//		//デバックカメラの更新
-//		debugCamera_->Update();
-//		viewProjection_.matView = ;
-//		viewProjection_.matProjection = ;
-//		
-//	}
-	//行列の再計算
-	viewProjection_.UpdateMatrix();
+	//デバックカメラの更新
+	debugCamera_->Update();
 
 	//自キャラの更新
 	player_->Update();
-
 }
 
 void GameScene::Draw() {
@@ -122,10 +108,15 @@ void GameScene::Draw() {
 	Model::PreDraw(commandList);
 
 	/// <summary>
+	/// ここに3Dオブジェクトの描画処理を追加できる
+	/// </summary>
+	///
+	// 3Dモデル描画
 
-	//ここに3Dオブジェクトの描画処理を追加できる
+	//自キャラの描画
 	player_->Draw(viewProjection_);
-	
+	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
+
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion

@@ -10,8 +10,12 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
-#include<DirectXMath.h>
-#include"Player.h"
+#include <math.h>
+
+#include "affinTransformation.h"
+#include "Player.h"
+
+#define PI 3.141592
 
 /// <summary>
 /// ゲームシーン
@@ -33,44 +37,23 @@ class GameScene {
 	/// 初期化
 	/// </summary>
 	void Initialize();
-
-	//自キャラ
-	Player* player_ = nullptr;
-
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
-
 	// 3Dモデル
 	Model* model_ = nullptr;
 	//ワールドトランスフォームビュープロジェクション
-	WorldTransform worldTransforms_[9];
-	WorldTransform worldTransform_;
-
+	WorldTransform worldTransforms_[100];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
-
 	//デバックカメラ
 	DebugCamera* debugCamera_ = nullptr;
-	//デバッグカメラ
-	bool isDebugCameraActive_ = false;
-
+	//デバックカメラ有効
+	// bool isDebugCameraActive_ = false;
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;
 
-	public:
-		enum PartId {
-			kRoot,//大元
-			kSpine,//脊椎
-			kChest,//胸
-			kHead,//頭
-			kArmL,//左腕
-			kArmR,//右腕
-			kHip,//尻
-			kLegL,//左足
-			kLegR,//右足
-
-			knumPartId
-	};
+	//自キャラ
+	Player* player_ = nullptr;
 
 	/// <summary>
 	/// 毎フレーム処理
@@ -85,12 +68,9 @@ class GameScene {
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
-	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
+	Audio* audio_ = nullptr;
 
-
-	
-	
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
