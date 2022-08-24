@@ -10,7 +10,9 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include <list>
 #include <math.h>
+#include <memory>
 
 class Player {
   public:
@@ -38,6 +40,6 @@ class Player {
 	DebugText* debugText_ = nullptr;
 	WorldTransform worldTransforms_;
 	uint32_t textureHandle_ = 0;
-	//fe
-	PlayerBullet* bullet_ = nullptr;
+	//’e
+	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 };
