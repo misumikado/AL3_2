@@ -14,6 +14,7 @@ GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
 	delete player_;
+	delete enemy_;
 }
 
 void GameScene::Initialize() {
@@ -22,8 +23,11 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
+
 	//ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("mario.jpg");
+	textureHandle_PL_ = TextureManager::Load("mario.jpg");
+	textureHandle_EN_ = TextureManager::Load("Enemy.png");
+
 	//モデル生成
 	model_ = Model::Create();
 
@@ -73,7 +77,12 @@ void GameScene::Initialize() {
 	//自キャラの生成
 	player_ = new Player();
 	//自キャラの初期化
-	player_->Initalize(model_, textureHandle_);
+	player_->Initalize(model_, textureHandle_PL_);
+
+	//敵キャラの生成
+	enemy_ = new Enemy();
+	//敵キャラの初期化
+	enemy_->Initalize(model_, textureHandle_EN_);
 }
 void GameScene::Update() {
 	//デバックカメラの更新
@@ -81,6 +90,9 @@ void GameScene::Update() {
 
 	//自キャラの更新
 	player_->Update();
+
+	//敵キャラの更新
+	enemy_->Update();
 }
 
 void GameScene::Draw() {
@@ -115,6 +127,10 @@ void GameScene::Draw() {
 
 	//自キャラの描画
 	player_->Draw(viewProjection_);
+
+	//敵キャラの描画
+	enemy_->Draw(viewProjection_);
+
 	//ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
 
 	// 3Dオブジェクト描画後処理
