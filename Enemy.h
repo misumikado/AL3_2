@@ -3,6 +3,7 @@
 #include "DebugCamera.h"
 #include "DebugText.h"
 #include "DirectXCommon.h"
+#include "EnemyBullet.h"
 #include "Input.h"
 #include "Model.h"
 #include "SafeDelete.h"
@@ -22,13 +23,16 @@ enum class Phase {
 class Enemy {
   public:
 	void Initalize(Model* model, uint32_t textureHandle);
+	void ApproachInitalize();
 
-	/// <summary>
-	///
-	/// </summary>
 	void Update();
+	void Move();
+	void Attack();
 
 	void Draw(ViewProjection& viewProjection);
+
+	//発射間隔
+	static const int kFireInterval = 60;
 
   private:
 	Model* model_ = nullptr;
@@ -38,4 +42,8 @@ class Enemy {
 	uint32_t textureHandle_ = 0;
 	//フェーズ
 	Phase phase_ = Phase::Approach;
+	//弾
+	std::list<std::unique_ptr<EnemyBullet>> bullets_;
+	//発射タイマー
+	int32_t FireTimer = 0;
 };
