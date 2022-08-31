@@ -12,8 +12,8 @@
 #include "WorldTransform.h"
 #include <math.h>
 
-#include "Enemy.h"
 #include "affinTransformation.h"
+#include "Enemy.h"
 #include "Player.h"
 
 #define PI 3.141592
@@ -24,19 +24,10 @@
 class GameScene {
 
   public: // メンバ関数
-	/// <summary>
-	/// コンストクラタ
-	/// </summary>
 	GameScene();
 
-	/// <summary>
-	/// デストラクタ
-	/// </summary>
 	~GameScene();
 
-	/// <summary>
-	/// 初期化
-	/// </summary>
 	void Initialize();
 	//テクスチャハンドル
 	uint32_t textureHandle_PL_ = 0; // 自機のテクスチャ
@@ -51,7 +42,6 @@ class GameScene {
 	//デバックカメラ
 	DebugCamera* debugCamera_ = nullptr;
 	//デバックカメラ有効
-	// bool isDebugCameraActive_ = false;
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;
 
@@ -61,14 +51,9 @@ class GameScene {
 	//敵キャラ
 	Enemy* enemy_ = nullptr;
 
-	/// <summary>
-	/// 毎フレーム処理
-	/// </summary>
 	void Update();
+	void CheckAllCollisons();
 
-	/// <summary>
-	/// 描画
-	/// </summary>
 	void Draw();
 
   private: // メンバ変数

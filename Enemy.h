@@ -17,11 +17,11 @@
 
 //行動フェーズ
 enum class Phase {
-	Approach, //接近
-	Leave,    //離脱
+	Approach, //接近する
+	Leave,    //離脱する
 };
 
-//自機のクラス
+//自機のクラスの前方宣言
 class Player;
 
 class Enemy {
@@ -34,13 +34,18 @@ class Enemy {
 	void Attack();
 	//ワールド座標を取得
 	Vector3 GetWorldPosition();
-
+	// 衝突を検出したら呼び出されるコールバック関数
+	void OnCollision();
+	//弾リストを取得
+	const std::list<std::unique_ptr<EnemyBullet>>& GetBullet() { return bullets_; }
 	void Draw(ViewProjection& viewProjection);
 
-	//発射頻度
+	//発射間隔
 	static const int kFireInterval = 60;
 
 	void SetPlayer(Player* player) { player_ = player; }
+
+	float radius = 3.0f;
 
   private:
 	Model* model_ = nullptr;

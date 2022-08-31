@@ -16,24 +16,20 @@
 
 class Player {
   public:
-	/// <summary>
-	///
-	/// </summary>
 	void Initalize(Model* model, uint32_t textureHandle);
 
-	/// <summary>
-	///
-	/// </summary>
 	void Update();
-
 	void Move();
 	void Rotate();
 	void Attack();
 	Vector3 GetWorldPosition();
-	/// <summary>
-	///
-	/// </summary>
+	void OnCollision();
+
+	//弾リストを取得
+	const std::list<std::unique_ptr<PlayerBullet>>& GetBullet() { return bullets_; }
+
 	void Draw(ViewProjection& viewProjection);
+	float radius = 3.0f;
 
   private:
 	Model* model_ = nullptr;
@@ -41,6 +37,6 @@ class Player {
 	DebugText* debugText_ = nullptr;
 	WorldTransform worldTransforms_;
 	uint32_t textureHandle_ = 0;
-	//’e
+	//Bullet
 	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 };

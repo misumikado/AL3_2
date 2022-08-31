@@ -46,10 +46,12 @@ void Enemy::Move() {
 	Vector3 move = {0, 0, 0};
 	switch (phase_) {
 	case Phase::Approach:
+
 	default:
-		//発射タイマーカウントダウン
+		//発射タイマーカウント
 		FireTimer -= 1;
-		//指定時間に達した
+
+		//リセット
 		if (FireTimer == 0) {
 			//弾を発射
 			Attack();
@@ -130,10 +132,13 @@ Vector3 Enemy::GetWorldPosition() {
 	return worldPos;
 }
 
+void Enemy::OnCollision() {
+	//何もしない
+}
+
 void Enemy::Draw(ViewProjection& viewProjection) {
 	model_->Draw(worldTransforms_, viewProjection, textureHandle_);
-
-	//描画
+	//弾描画
 	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) {
 		bullet->Draw(viewProjection);
 	}
