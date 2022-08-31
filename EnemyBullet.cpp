@@ -16,7 +16,7 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector
 	textureHandle_ = TextureManager::Load("black.png");
 
 	worldTransform_.Initialize();
-	//初期座標をセット
+	//引数で受け取った初期座標をセット
 	worldTransform_.translation_ = {position.x, position.y, position.z};
 
 	//引数で受け取った速度をメンバ変数に代入する
@@ -27,8 +27,7 @@ void EnemyBullet::Update() {
 	worldTransform_.translation_ += velocity_;
 	affinTransformation::Transfer(worldTransform_);
 	worldTransform_.TransferMatrix();
-	
-	//時間経過消滅
+	//時間経過で消失
 	if (--deathTimer_ <= 0) {
 		isDead_ = true;
 	}

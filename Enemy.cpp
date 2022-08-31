@@ -4,6 +4,7 @@
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
 #include "affinTransformation.h"
+#include "Player.h"
 #include <cassert>
 #include <random>
 
@@ -75,14 +76,22 @@ void Enemy::Move() {
 }
 
 void Enemy::Attack() {
-	if (input_->PushKey(DIK_SPACE)) {
-	}
-	//弾の速度
-	const float kBulletSpeed = -1.0f;
-	Vector3 velocity(0, 0, kBulletSpeed);
-	//速度ベクトルを自機の向きに合わせて回転させる
-	// affinTransformation::VecMat(velocity, worldTransforms_);
+	assert(player_);
 
+	//弾の速度
+	const float kBulletSpeed =
+	  0.5 * 0.1f; //バグで速いため0.1をかけている(要修正)--------------------------------
+
+	// Vector3 velocity(0, 0, kBulletSpeed);
+	Vector3 PLvec = player_->GetWorldPosition(); //自キャラのワールド座標を取得
+	Vector3 ENvec = GetWorldPosition();          //敵キャラのワールド座標を取得
+	Vector3 SPvec = Vector3Math::diff(PLvec, ENvec); //敵キャラ→自キャラの差分ベクトルを求める
+	SPvec = Vector3Math::Normalize(SPvec); //ベクトルの正規化
+	Vector3 velocity(
+	  SPvec.x * kBulletSpeed, SPvec.y * kBulletSpeed,
+	  SPvec.z * kBulletSpeed); //ベクトルの長さを、速さに合わせる
+
+	//速度ベクトルを自機の向きに合わせて回転させる
 	velocity.x = (velocity.x * worldTransforms_.matWorld_.m[0][0]) +
 	             (velocity.y * worldTransforms_.matWorld_.m[1][0]) +
 	             (velocity.z * worldTransforms_.matWorld_.m[2][0]) +
@@ -110,9 +119,21 @@ void Enemy::Attack() {
 	bullets_.push_back(std::move(newBullet));
 }
 
+Vector3 Enemy::GetWorldPosition() {
+	//ワールド座標を入れる変数
+	Vector3 worldPos;
+	//ワールド行列の平行移動成分を取得
+	worldPos.x = worldTransforms_.translation_.x;
+	worldPos.y = worldTransforms_.translation_.y;
+	worldPos.z = worldTransforms_.translation_.z;
+
+	return worldPos;
+}
+
 void Enemy::Draw(ViewProjection& viewProjection) {
 	model_->Draw(worldTransforms_, viewProjection, textureHandle_);
-	//弾描画
+
+	//描画
 	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) {
 		bullet->Draw(viewProjection);
 	}

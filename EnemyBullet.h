@@ -18,10 +18,13 @@ class EnemyBullet {
 	uint32_t textureHandle_ = 0;
 	//速度
 	Vector3 velocity_;
+
 	//消滅時間
 	static const int32_t LifeTime = 60 * 5;
+	
 	//タイマー
 	int32_t deathTimer_ = LifeTime;
-	//死亡判定
+	
+	//死亡フラグ
 	bool isDead_ = false;
 };
